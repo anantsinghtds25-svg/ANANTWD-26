@@ -1,0 +1,37 @@
+DOCTYPE html> 
+<html lang="en"><head> 
+ <meta charset="UTF-8"/> 
+ <title>Map + Embed Demo</title> 
+ <style> 
+  body { margin: 0; font-family: sans-serif; display: grid; 
+       grid-template-rows: 50px 1fr; height: 100vh; } 
+  header { background: #185FA5; color: white; display: flex; 
+        align-items: center; padding: 0 1rem; font-size: 18px; } 
+  main { display: grid; grid-template-columns: 240px 1fr; } 
+  nav { background: #f4f4f4; padding: 1rem; border-right: 1px solid #ddd; }   nav a { display: block; padding: 8px; color: #333; text-decoration: none; }   nav a:hover { background: #dde; } 
+  iframe { width: 100%; height: 100%; border: none; } 
+ </style> 
+</head><body>
+ <header>My Frames Layout</header>
+ <main>
+ <nav> 
+  <a href="#" 
+   onclick="load('map')">Map view</a> 
+  <a href="#" 
+   onclick="load('wiki')">Wikipedia</a> 
+ </nav>
+  <iframe id="content" 
+       src="https://maps.google.com/maps 
+?q=Mumbai&output=embed" 
+       title="Content frame" 
+       loading="lazy"></iframe> 
+ </main>
+ <script> 
+   const urls = { 
+   map: 'https://maps.google.com/maps?q=Mumbai&output=embed',     wiki: 'https://en.m.wikipedia.org/wiki/Mumbai' 
+   }; 
+  function load(key) { 
+    document.getElementById('content').src = urls[key]; 
+   } 
+ </script> 
+</body></html>
