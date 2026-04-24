@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 API Showcase</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        section {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* Drag and Drop Styles */
+        #drag-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .box {
+            width: 150px;
+            height: 150px;
+            border: 2px dashed #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        #draggable-item {
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* UI Elements */
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            width: 60%;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-style: italic;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>HTML5 API Demonstration</h1>
+        <p>Exploring Drag & Drop, Geolocation, and Web Storage</p>
+    </header>
+
+    <section>
+        <h2>1. Drag & Drop</h2>
+        <p>Drag the blue square from the left box to the right box.</p>
+        <div id="drag-container">
+            <div class="box" id="origin" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <div id="draggable-item" draggable="true" ondragstart="drag(event)">DRAG ME</div>
+            </div>
+            <div class="box" id="destination" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Geolocation</h2>
+        <p>Click the button to find your current coordinates.</p>
+        <button onclick="getLocation()">Get Location</button>
+        <div id="location-display" class="status">Waiting for input...</div>
+    </section>
+
+    <section>
+        <h2>3. Web Storage (Local Storage)</h2>
+        <p>Type something and save it. It will persist even if you refresh the page.</p>
+        <input type="text" id="storage-input" placeholder="Enter a secret note...">
+        <div style="margin-top: 10px;">
+            <button onclick="saveData()">Save to Storage</button>
+            <button onclick="clearData()" style="background: #ef4444;">Clear</button>
+        </div>
+        <div id="storage-display" class="status">Stored data: <span id="saved-value">None</span></div>
+    </section>
+</div>
+
+<script>
+    /* --- Drag and Drop Logic --- */
+    function allowDrop(ev) {
+        ev.preventDefault(); // Necessary to allow a drop
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text");
+        // Ensure we only drop into the box containers
+        if (ev.target.classList.contains('box')) {
+            ev.target.appendChild(document.getElementById(data));
+        }
+    }
+
+    /* --- Geolocation Logic --- */
+    const locDisplay = document.getElementById('location-display');
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            locDisplay.innerText = "Locating...";
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            locDisplay.innerText = "Geolocation is not supported by this browser.";
+        }
+    }
+
+    function showPosition(position) {
+        locDisplay.innerHTML = `<strong>Latitude:</strong> ${position.coords.latitude}<br> 
+                                <strong>Longitude:</strong> ${position.coords.longitude}`;
+    }
+
+    function showError(error) {
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                locDisplay.innerText = "User denied the request for Geolocation.";
+                break;
+            default:
+                locDisplay.innerText = "Location information is unavailable.";
+                break;
+        }
+    }
+
+    /* --- Web Storage Logic --- */
+    const storageInput = document.getElementById('storage-input');
+    const savedSpan = document.getElementById('saved-value');
+
+    // Load data on page refresh
+    window.onload = () => {
+        const savedName = localStorage.getItem('userNote');
+        if (savedName) {
+            savedSpan.innerText = savedName;
+        }
+    };
+
+    function saveData() {
+        const value = storageInput.value;
+        if (value) {
+            localStorage.setItem('userNote', value);
+            savedSpan.innerText = value;
+            storageInput.value = '';
+            alert('Data saved to LocalStorage!');
+        }
+    }
+
+    function clearData() {
+        localStorage.removeItem('userNote');
+        savedSpan.innerText = 'None';
+    }
+</script>
+
+</body>
+</html>
